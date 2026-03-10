@@ -45,6 +45,11 @@ jobs:
           name: ipxe-source
           path: ipxe-src/
 
+      - name: Restore script permissions
+        run: |
+          find ipxe-src/src/util -type f -exec chmod +x {} +
+          find ipxe-src/src -name 'Makefile*' -exec chmod +r {} +
+
       - name: Build
         run: ./scripts/build.sh ${{ matrix.arch }} ipxe-src output
 
@@ -91,6 +96,9 @@ jobs:
           cp -r artifacts/build-x86_64/* ipxe-src/src/
           cp -r artifacts/build-arm32/* ipxe-src/src/
           cp -r artifacts/build-arm64/* ipxe-src/src/
+
+      - name: Restore script permissions
+        run: chmod +x ipxe-src/src/util/gen*
 
       - name: Package
         run: ./scripts/package.sh ipxe-src output
