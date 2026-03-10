@@ -14,14 +14,34 @@ A stock iPXE build includes several network timeouts that add up on simple IPv4 
 
 Total boot time reduction is roughly **10 seconds** compared to stock iPXE.
 
-## Build artifacts
+## Release artifacts
 
-| File | Format | Use case |
-|---|---|---|
-| `ipxe-snponly-x86_64.efi` | EFI | UEFI PXE boot (x86_64) |
-| `undionly.kpxe` | BIOS | Legacy BIOS PXE boot via UNDI |
+Release artifacts match the [upstream iPXE](https://github.com/ipxe/ipxe/releases) naming for x86_64:
 
-Download pre-built binaries from the [Releases](../../releases) page.
+| File | Description |
+|---|---|
+| `ipxe.iso` | Bootable ISO (x86_64 BIOS + EFI) |
+| `ipxe.usb` | Bootable USB image (x86_64 BIOS + EFI) |
+| `ipxeboot.tar.gz` | Network boot server files for TFTP deployment |
+
+The `ipxeboot.tar.gz` contains individual binaries organized by architecture:
+
+```
+ipxeboot/
+├── i386/
+│   ├── ipxe.pxe
+│   ├── ipxe-legacy.pxe
+│   └── undionly.kpxe
+└── x86_64/
+    ├── ipxe.efi
+    ├── ipxe-legacy.efi
+    ├── ipxe.pxe
+    ├── ipxe-legacy.pxe
+    ├── snponly.efi
+    └── undionly.kpxe
+```
+
+Download from the [Releases](../../releases) page.
 
 ## When to use this
 
