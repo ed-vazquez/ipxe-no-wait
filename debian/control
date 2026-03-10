@@ -2,7 +2,7 @@ Source: ipxe-no-wait
 Section: net
 Priority: optional
 Maintainer: Eduardo Vazquez <evazquez@vazqueztech.com>
-Build-Depends: debhelper-compat (= 13), wget
+Build-Depends: debhelper-compat (= 13)
 Standards-Version: 4.6.2
 Homepage: https://github.com/ed-vazquez/ipxe-no-wait
 Rules-Requires-Root: no
