@@ -166,7 +166,7 @@ jobs:
 
           for series in "${SERIES[@]}"; do
             sed -i "1s/)[^)]*$/~${series}) ${series}; urgency=medium/" debian/changelog
-            debuild -S -sa -k${GPG_KEY}
+            debuild -S -sa -d -k${GPG_KEY}
             dput ppa:ed-vazquez/ipxe-no-wait ../ipxe-no-wait_*~${series}_source.changes
             git checkout debian/changelog
           done
