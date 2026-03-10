@@ -7,8 +7,9 @@ build:
 	docker build -t $(IMAGE) .
 	mkdir -p $(OUTDIR)
 	docker create --name ipxe-extract $(IMAGE) 2>/dev/null || true
-	docker cp ipxe-extract:/ipxe-snponly-x86_64.efi $(OUTDIR)/
-	docker cp ipxe-extract:/undionly.kpxe $(OUTDIR)/
+	docker cp ipxe-extract:/ipxe.iso $(OUTDIR)/
+	docker cp ipxe-extract:/ipxe.usb $(OUTDIR)/
+	docker cp ipxe-extract:/ipxeboot.tar.gz $(OUTDIR)/
 	docker rm ipxe-extract
 
 clean:

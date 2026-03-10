@@ -19,8 +19,39 @@ RUN git clone --depth 1 --branch ${IPXE_VERSION} https://github.com/ipxe/ipxe.gi
 WORKDIR /ipxe/src
 COPY config/ config/local/
 
-RUN make -j$(nproc) bin-x86_64-efi/snponly.efi bin/undionly.kpxe CC=gcc-9
+RUN make -j$(nproc) CC=gcc-9 \
+    bin/ipxe.pxe \
+    bin/ipxe-legacy.pxe \
+    bin/undionly.kpxe \
+    bin/ipxe.lkrn \
+    bin-x86_64-pcbios/ipxe.pxe \
+    bin-x86_64-pcbios/ipxe-legacy.pxe \
+    bin-x86_64-pcbios/undionly.kpxe \
+    bin-x86_64-pcbios/ipxe.lkrn \
+    bin-x86_64-efi/ipxe.efi \
+    bin-x86_64-efi/ipxe-legacy.efi \
+    bin-x86_64-efi/snponly.efi
+
+RUN ./util/gensrvimg -o /ipxeboot.tar.gz \
+    bin/ipxe.pxe \
+    bin/ipxe-legacy.pxe \
+    bin/undionly.kpxe \
+    bin-x86_64-pcbios/ipxe.pxe \
+    bin-x86_64-pcbios/ipxe-legacy.pxe \
+    bin-x86_64-pcbios/undionly.kpxe \
+    bin-x86_64-efi/ipxe.efi \
+    bin-x86_64-efi/ipxe-legacy.efi \
+    bin-x86_64-efi/snponly.efi
+
+RUN ./util/genfsimg -o /ipxe.iso \
+    bin-x86_64-pcbios/ipxe.lkrn \
+    bin-x86_64-efi/ipxe.efi
+
+RUN ./util/genfsimg -o /ipxe.usb \
+    bin-x86_64-pcbios/ipxe.lkrn \
+    bin-x86_64-efi/ipxe.efi
 
 FROM scratch
-COPY --from=builder /ipxe/src/bin-x86_64-efi/snponly.efi /ipxe-snponly-x86_64.efi
-COPY --from=builder /ipxe/src/bin/undionly.kpxe /undionly.kpxe
+COPY --from=builder /ipxe.iso /ipxe.iso
+COPY --from=builder /ipxe.usb /ipxe.usb
+COPY --from=builder /ipxeboot.tar.gz /ipxeboot.tar.gz
