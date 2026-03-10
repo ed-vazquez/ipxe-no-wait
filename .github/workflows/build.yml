@@ -136,6 +136,11 @@ jobs:
             output/ipxe-x86_64.usb
             output/ipxeboot.tar.gz
 
+  copr:
+    name: Publish to COPR
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
       - name: Trigger COPR build
         env:
           COPR_WEBHOOK_URL: ${{ secrets.COPR_WEBHOOK_URL }}
