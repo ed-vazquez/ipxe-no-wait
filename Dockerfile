@@ -1,9 +1,13 @@
-FROM ghcr.io/ipxe/ipxe-builder-x86_64 AS builder
+FROM alpine:3.21 AS source
 
+RUN apk add --no-cache git
 ARG IPXE_VERSION=v1.21.1
 WORKDIR /ipxe
 RUN git clone --depth 1 --branch ${IPXE_VERSION} https://github.com/ipxe/ipxe.git .
 
+FROM ghcr.io/ipxe/ipxe-builder-x86_64 AS builder
+
+COPY --from=source /ipxe /ipxe
 WORKDIR /ipxe/src
 COPY config/ config/local/
 
