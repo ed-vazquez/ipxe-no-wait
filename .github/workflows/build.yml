@@ -7,12 +7,36 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build iPXE binaries
-        run: make build
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            liblzma-dev \
+            isolinux \
+            mtools \
+            genisoimage
+
+      - name: Clone iPXE source
+        run: |
+          IPXE_VERSION=$(grep -oP 'IPXE_VERSION=\K\S+' Dockerfile)
+          git clone --depth 1 --branch ${IPXE_VERSION} https://github.com/ipxe/ipxe.git ipxe-src
+
+      - name: Apply config overrides and build
+        working-directory: ipxe-src/src
+        run: |
+          cp -r ../../config/ config/local/
+          make -j$(nproc) bin-x86_64-efi/snponly.efi bin/undionly.kpxe
+
+      - name: Collect artifacts
+        run: |
+          mkdir -p output
+          cp ipxe-src/src/bin-x86_64-efi/snponly.efi output/ipxe-snponly-x86_64.efi
+          cp ipxe-src/src/bin/undionly.kpxe output/undionly.kpxe
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
