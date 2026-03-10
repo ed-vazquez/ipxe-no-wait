@@ -137,5 +137,7 @@ jobs:
             output/ipxeboot.tar.gz
 
       - name: Trigger COPR build
-        if: ${{ secrets.COPR_WEBHOOK_URL != '' }}
-        run: curl -X POST "${{ secrets.COPR_WEBHOOK_URL }}"
+        env:
+          COPR_WEBHOOK_URL: ${{ secrets.COPR_WEBHOOK_URL }}
+        if: env.COPR_WEBHOOK_URL != ''
+        run: curl -X POST "${COPR_WEBHOOK_URL}"
