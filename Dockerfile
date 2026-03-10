@@ -1,4 +1,4 @@
-FROM alpine:3.20 AS builder
+FROM alpine:3.21 AS builder
 
 RUN apk add --no-cache \
     build-base \
@@ -16,7 +16,8 @@ RUN git clone --depth 1 --branch ${IPXE_VERSION} https://github.com/ipxe/ipxe.gi
 WORKDIR /ipxe/src
 COPY config/ config/local/
 
-RUN make -j$(nproc) bin-x86_64-efi/snponly.efi bin/undionly.kpxe
+RUN make -j$(nproc) bin-x86_64-efi/snponly.efi bin/undionly.kpxe \
+    EXTRA_CFLAGS="-Wno-error=array-bounds"
 
 FROM scratch
 COPY --from=builder /ipxe/src/bin-x86_64-efi/snponly.efi /ipxe-snponly-x86_64.efi
