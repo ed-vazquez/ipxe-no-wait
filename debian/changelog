@@ -1,7 +1,8 @@
-ipxe-no-wait (2.0.0-1) noble; urgency=medium
+ipxe-no-wait (2.0.0.1) noble; urgency=medium
 
   * Upgrade to iPXE v2.0.0
   * Add ARM32 and ARM64 EFI binaries
   * Use iPXE official builder images for reproducible builds
+  * Fix Debian packaging for PPA builds
 
  -- Eduardo Vazquez <evazquez@vazqueztech.com>  Mon, 10 Mar 2026 00:00:00 +0000

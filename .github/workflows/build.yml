@@ -159,9 +159,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y devscripts debhelper dput
 
       - name: Download release tarball
-        run: |
-          VERSION=$(dpkg-parsechangelog -S Version | cut -d- -f1)
-          wget -q "https://github.com/ed-vazquez/ipxe-no-wait/releases/download/v${VERSION}/ipxeboot.tar.gz"
+        run: wget -q "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/ipxeboot.tar.gz"
 
       - name: Import GPG key
         env:
@@ -178,4 +176,5 @@ jobs:
             debuild -S -sa -d -k${GPG_KEY}
             dput ppa:ed-vazquez/ipxe-no-wait ../ipxe-no-wait_*~${series}_source.changes
             git checkout debian/changelog
+            rm -f ../ipxe-no-wait_*~${series}*
           done
