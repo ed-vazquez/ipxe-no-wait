@@ -1,0 +1,18 @@
+Source: ipxe-no-wait
+Section: net
+Priority: optional
+Maintainer: Eduardo Vazquez <evazquez@vazqueztech.com>
+Build-Depends: debhelper-compat (= 13), wget
+Standards-Version: 4.6.2
+Homepage: https://github.com/ed-vazquez/ipxe-no-wait
+Rules-Requires-Root: no
+
+Package: ipxe-no-wait
+Architecture: all
+Depends: ${misc:Depends}
+Description: iPXE boot images optimized for fast PXE boot on IPv4 networks
+ Pre-built iPXE network boot firmware with reduced boot times for IPv4-only
+ PXE environments. Disables IPv6 and ProxyDHCP wait times, saving roughly
+ 10 seconds compared to stock iPXE.
+ .
+ Includes binaries for x86_64 (BIOS + UEFI), ARM32 (UEFI), and ARM64 (UEFI).

@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# Pre-built binaries, nothing to compile
+
+override_dh_auto_install:
+	mkdir -p debian/ipxe-no-wait/usr/share/ipxe-no-wait
+	wget -q "https://github.com/ed-vazquez/ipxe-no-wait/releases/download/v$(shell dpkg-parsechangelog -S Version | cut -d- -f1)/ipxeboot.tar.gz" -O ipxeboot.tar.gz
+	tar xzf ipxeboot.tar.gz -C debian/ipxe-no-wait/usr/share/ipxe-no-wait --strip-components=1
