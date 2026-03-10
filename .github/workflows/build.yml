@@ -135,3 +135,7 @@ jobs:
             output/ipxe-x86_64.iso
             output/ipxe-x86_64.usb
             output/ipxeboot.tar.gz
+
+      - name: Trigger COPR build
+        if: ${{ secrets.COPR_WEBHOOK_URL != '' }}
+        run: curl -X POST "${{ secrets.COPR_WEBHOOK_URL }}"
