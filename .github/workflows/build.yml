@@ -141,3 +141,32 @@ jobs:
           COPR_WEBHOOK_URL: ${{ secrets.COPR_WEBHOOK_URL }}
         if: env.COPR_WEBHOOK_URL != ''
         run: curl -X POST "${COPR_WEBHOOK_URL}"
+
+  ppa:
+    name: Publish to PPA
+    needs: release
+    runs-on: ubuntu-latest
+    if: ${{ vars.PPA_ENABLED == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y devscripts debhelper dput
+
+      - name: Import GPG key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: echo "${GPG_PRIVATE_KEY}" | gpg --batch --import
+
+      - name: Build and upload source package
+        run: |
+          VERSION=$(dpkg-parsechangelog -S Version | cut -d- -f1)
+          SERIES=(noble jammy)
+          GPG_KEY="166A7D4BDCCF0B55CBF37E577C9346672B6ABD7D"
+
+          for series in "${SERIES[@]}"; do
+            sed -i "1s/)[^)]*$/~${series}) ${series}; urgency=medium/" debian/changelog
+            debuild -S -sa -k${GPG_KEY}
+            dput ppa:ed-vazquez/ipxe-no-wait ../ipxe-no-wait_*~${series}_source.changes
+            git checkout debian/changelog
+          done
