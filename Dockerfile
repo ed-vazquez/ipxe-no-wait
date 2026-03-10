@@ -1,13 +1,18 @@
-FROM alpine:3.21 AS source
+FROM ubuntu:22.04 AS builder
 
-RUN apk add --no-cache git
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    liblzma-dev \
+    isolinux \
+    mtools \
+    genisoimage \
+    && rm -rf /var/lib/apt/lists/*
+
 ARG IPXE_VERSION=v1.21.1
 WORKDIR /ipxe
 RUN git clone --depth 1 --branch ${IPXE_VERSION} https://github.com/ipxe/ipxe.git .
 
-FROM ghcr.io/ipxe/ipxe-builder-x86_64 AS builder
-
-COPY --from=source /ipxe /ipxe
 WORKDIR /ipxe/src
 COPY config/ config/local/
 
