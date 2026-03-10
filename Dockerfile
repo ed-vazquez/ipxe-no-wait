@@ -1,57 +1,37 @@
-FROM ubuntu:22.04 AS builder
+ARG IPXE_VERSION=v2.0.0
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc-9 \
-    libc6-dev \
-    make \
-    ca-certificates \
-    git \
-    liblzma-dev \
-    isolinux \
-    mtools \
-    genisoimage \
-    && rm -rf /var/lib/apt/lists/*
+FROM alpine:3.21 AS source
+ARG IPXE_VERSION
+RUN apk add --no-cache git
+WORKDIR /build
+COPY config/ config/
+COPY scripts/ scripts/
+RUN ./scripts/clone.sh ${IPXE_VERSION} config ipxe
 
-ARG IPXE_VERSION=v1.21.1
-WORKDIR /ipxe
-RUN git clone --depth 1 --branch ${IPXE_VERSION} https://github.com/ipxe/ipxe.git .
+FROM ghcr.io/ipxe/ipxe-builder-x86_64 AS build-x86_64
+COPY --from=source /build/ /build/
+WORKDIR /build
+RUN ./scripts/build.sh x86_64 ipxe output
 
-WORKDIR /ipxe/src
-COPY config/ config/local/
+FROM ghcr.io/ipxe/ipxe-builder-arm32 AS build-arm32
+COPY --from=source /build/ /build/
+WORKDIR /build
+RUN ./scripts/build.sh arm32 ipxe output
 
-RUN make -j$(nproc) CC=gcc-9 \
-    bin/ipxe.pxe \
-    bin/ipxe-legacy.pxe \
-    bin/undionly.kpxe \
-    bin/ipxe.lkrn \
-    bin-x86_64-pcbios/ipxe.pxe \
-    bin-x86_64-pcbios/ipxe-legacy.pxe \
-    bin-x86_64-pcbios/undionly.kpxe \
-    bin-x86_64-pcbios/ipxe.lkrn \
-    bin-x86_64-efi/ipxe.efi \
-    bin-x86_64-efi/ipxe-legacy.efi \
-    bin-x86_64-efi/snponly.efi
+FROM ghcr.io/ipxe/ipxe-builder-arm64 AS build-arm64
+COPY --from=source /build/ /build/
+WORKDIR /build
+RUN ./scripts/build.sh arm64 ipxe output
 
-RUN ./util/gensrvimg -o /ipxeboot.tar.gz \
-    bin/ipxe.pxe \
-    bin/ipxe-legacy.pxe \
-    bin/undionly.kpxe \
-    bin-x86_64-pcbios/ipxe.pxe \
-    bin-x86_64-pcbios/ipxe-legacy.pxe \
-    bin-x86_64-pcbios/undionly.kpxe \
-    bin-x86_64-efi/ipxe.efi \
-    bin-x86_64-efi/ipxe-legacy.efi \
-    bin-x86_64-efi/snponly.efi
-
-RUN ./util/genfsimg -o /ipxe.iso \
-    bin-x86_64-pcbios/ipxe.lkrn \
-    bin-x86_64-efi/ipxe.efi
-
-RUN ./util/genfsimg -o /ipxe.usb \
-    bin-x86_64-pcbios/ipxe.lkrn \
-    bin-x86_64-efi/ipxe.efi
+FROM ghcr.io/ipxe/ipxe-builder-x86_64 AS package
+COPY --from=source /build/ /build/
+COPY --from=build-x86_64 /build/ipxe/src/bin/ /build/ipxe/src/bin/
+COPY --from=build-x86_64 /build/ipxe/src/bin-x86_64-pcbios/ /build/ipxe/src/bin-x86_64-pcbios/
+COPY --from=build-x86_64 /build/ipxe/src/bin-x86_64-efi/ /build/ipxe/src/bin-x86_64-efi/
+COPY --from=build-arm32 /build/ipxe/src/bin-arm32-efi/ /build/ipxe/src/bin-arm32-efi/
+COPY --from=build-arm64 /build/ipxe/src/bin-arm64-efi/ /build/ipxe/src/bin-arm64-efi/
+WORKDIR /build
+RUN ./scripts/package.sh ipxe output
 
 FROM scratch
-COPY --from=builder /ipxe.iso /ipxe.iso
-COPY --from=builder /ipxe.usb /ipxe.usb
-COPY --from=builder /ipxeboot.tar.gz /ipxeboot.tar.gz
+COPY --from=package /build/output/ /

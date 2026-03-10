@@ -2,5 +2,7 @@ output/
 .git/
 .gitignore
 .dockerignore
-Makefile
 .github/
+Makefile
+README.md
+LICENSE

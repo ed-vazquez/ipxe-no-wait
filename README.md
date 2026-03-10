@@ -2,6 +2,8 @@
 
 Pre-built [iPXE](https://ipxe.org) binaries optimized for fast PXE boot on IPv4 networks. Eliminates unnecessary wait times in the standard iPXE boot sequence.
 
+Based on upstream [iPXE v2.0.0](https://github.com/ipxe/ipxe/releases/tag/v2.0.0).
+
 ## What it does
 
 A stock iPXE build includes several network timeouts that add up on simple IPv4 PXE environments:
@@ -16,18 +18,26 @@ Total boot time reduction is roughly **10 seconds** compared to stock iPXE.
 
 ## Release artifacts
 
-Release artifacts match the [upstream iPXE](https://github.com/ipxe/ipxe/releases) naming for x86_64:
+Release artifacts match the [upstream iPXE](https://github.com/ipxe/ipxe/releases) naming:
 
 | File | Description |
 |---|---|
-| `ipxe.iso` | Bootable ISO (x86_64 BIOS + EFI) |
-| `ipxe.usb` | Bootable USB image (x86_64 BIOS + EFI) |
+| `ipxe-x86_64.iso` | Bootable ISO (x86_64 BIOS + EFI) |
+| `ipxe-x86_64.usb` | Bootable USB image (x86_64 BIOS + EFI) |
 | `ipxeboot.tar.gz` | Network boot server files for TFTP deployment |
 
 The `ipxeboot.tar.gz` contains individual binaries organized by architecture:
 
 ```
 ipxeboot/
+├── arm32/
+│   ├── ipxe.efi
+│   ├── ipxe-legacy.efi
+│   └── snponly.efi
+├── arm64/
+│   ├── ipxe.efi
+│   ├── ipxe-legacy.efi
+│   └── snponly.efi
 ├── i386/
 │   ├── ipxe.pxe
 │   ├── ipxe-legacy.pxe
@@ -61,7 +71,7 @@ Requires Docker.
 make build
 ```
 
-Binaries are written to `output/`.
+Artifacts are written to `output/`.
 
 To clean up:
 
@@ -76,21 +86,21 @@ This repo does **not** fork or modify iPXE source code. It uses iPXE's built-in 
 - `config/general.h` — disables `NET_PROTO_IPV6`
 - `config/dhcp.h` — sets `DHCP_DISC_PROXY_TIMEOUT_SEC` and `DHCP_REQ_PROXY_TIMEOUT_SEC` to 0
 
-The Dockerfile clones upstream iPXE at a pinned tag, copies the config overrides, and builds the binaries.
+The Dockerfile clones upstream iPXE at a pinned tag, copies the config overrides into `config/local/`, and builds using iPXE's official builder images (`ghcr.io/ipxe/ipxe-builder-*`) with cross-compilers for each architecture.
 
 ## Updating iPXE version
 
 Edit the `IPXE_VERSION` build arg in the `Dockerfile`:
 
 ```dockerfile
-ARG IPXE_VERSION=v1.21.1
+ARG IPXE_VERSION=v2.0.0
 ```
 
 Then tag a new release to trigger a build:
 
 ```sh
-git tag v1.21.1
-git push origin v1.21.1
+git tag v2.0.0
+git push origin v2.0.0
 ```
 
 ## License
