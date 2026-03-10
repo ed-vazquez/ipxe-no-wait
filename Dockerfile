@@ -1,7 +1,9 @@
 FROM ubuntu:22.04 AS builder
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+    gcc-9 \
+    libc6-dev \
+    make \
     ca-certificates \
     git \
     liblzma-dev \
@@ -17,7 +19,7 @@ RUN git clone --depth 1 --branch ${IPXE_VERSION} https://github.com/ipxe/ipxe.gi
 WORKDIR /ipxe/src
 COPY config/ config/local/
 
-RUN make -j$(nproc) bin-x86_64-efi/snponly.efi bin/undionly.kpxe
+RUN make -j$(nproc) bin-x86_64-efi/snponly.efi bin/undionly.kpxe CC=gcc-9
 
 FROM scratch
 COPY --from=builder /ipxe/src/bin-x86_64-efi/snponly.efi /ipxe-snponly-x86_64.efi

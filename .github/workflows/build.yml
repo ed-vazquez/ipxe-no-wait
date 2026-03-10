@@ -15,7 +15,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            build-essential \
+            gcc-9 \
+            libc6-dev \
+            make \
             liblzma-dev \
             isolinux \
             mtools \
@@ -30,7 +32,7 @@ jobs:
         working-directory: ipxe-src/src
         run: |
           cp -r ../../config/ config/local/
-          make -j$(nproc) bin-x86_64-efi/snponly.efi bin/undionly.kpxe
+          make -j$(nproc) bin-x86_64-efi/snponly.efi bin/undionly.kpxe CC=gcc-9
 
       - name: Collect artifacts
         run: |
