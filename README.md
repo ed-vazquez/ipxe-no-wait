@@ -69,8 +69,8 @@ ARG IPXE_VERSION=v1.21.1
 Then tag a new release to trigger a build:
 
 ```sh
-git tag v1.21.1-1
-git push origin v1.21.1-1
+git tag v1.21.1
+git push origin v1.21.1
 ```
 
 ## License
