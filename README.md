@@ -53,6 +53,31 @@ ipxeboot/
 
 Download from the [Releases](../../releases) page.
 
+## Installing via package manager
+
+### Fedora / RHEL / Rocky / AlmaLinux (COPR)
+
+```sh
+sudo dnf copr enable ed-vazquez/ipxe-no-wait
+sudo dnf install ipxe-no-wait
+```
+
+Available for Fedora 42–44 and EPEL 8–10 (RHEL, Rocky, AlmaLinux).
+
+### Ubuntu (PPA)
+
+```sh
+sudo add-apt-repository ppa:ed-vazquez/ipxe-no-wait
+sudo apt update
+sudo apt install ipxe-no-wait
+```
+
+Available for Ubuntu Noble (24.04) and Jammy (22.04).
+
+### Install location
+
+Binaries are installed to `/usr/share/ipxe-no-wait/` organized by architecture.
+
 ## When to use this
 
 These builds are right for you if:
